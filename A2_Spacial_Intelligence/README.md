@@ -1,197 +1,146 @@
-# A2 — Spatial Intelligence: British Museum Floor Plan Analysis
+# Spatial Intelligence — British Museum Floor Plan Analysis
 
-**Author:** Marina Osmolovska
-**Course:** Graph ML — MaCAD 2025, Semester 3
-**Tool:** TopologicPy + Plotly, Python
-
----
-
-## British Museum Ground Floor Map
-
-> Reference floor plan used to define the spatial boundary for all analyses.
-
-[View British Museum Floor Plan PDF](2D%20files/British_Museum_map.pdf)
+**Marina Osmolovska**
+MaCAD 2025 · Semester 3 · Graph ML
 
 ---
 
-## Workflow
-
-The analysis applies graph-based spatial intelligence methods to the British Museum ground floor plan. The floor plan geometry is imported as a 3D mesh, cleaned into a planar face, overlaid with a regular grid, and sliced into a shell of discrete spatial cells. Two graphs are derived from this shell:
-
-- **Navigation graph** — connects cells via shared edges (walls/openings), used for pathfinding
-- **Analysis graph** — connects cells via shared topology, used for centrality metrics
-
-The core research question is **accessibility**: which rooms and corridors are easiest to reach, how much through-traffic they attract, and how visible they are from any given point. The four shortest path case studies specifically examine routes to destinations in the far corners of the building — areas that are spatially deepest and most likely to be missed by visitors.
+[View British Museum Ground Floor Map](2D%20files/British_Museum_map.pdf)
 
 ---
 
-## Analysis
+## About This Analysis
 
-### 1. Gallery Floor Plan Import
+This notebook applies graph-based spatial intelligence methods to the ground floor of the British Museum. The central question is one of accessibility: which rooms and galleries are naturally easy to reach, which attract the most through-traffic simply by being on the way, and which are visually open versus hidden. A secondary thread runs through the shortest path studies — examining routes to destinations in the far corners and periphery of the building, places that visitors often miss not because they aren't looking, but because the spatial configuration works against them.
+
+The analysis uses TopologicPy to build a graph from the floor plan geometry. The floor plan is imported as a mesh, reconstructed into a clean planar face, subdivided with a regular grid, and sliced into a shell of discrete spatial cells. Each cell becomes a node in the graph, and edges connect neighbouring cells. Two graphs are produced: a navigation graph for pathfinding, and an analysis graph for centrality metrics. From these, the analysis derives integration, choice, community structure, degree centrality, and visibility — each revealing a different dimension of how the building works spatially.
+
+---
+
+## The Floor Plan
 
 ![Gallery Floor Plan](2D%20files/01_gallery_floor_plan.png)
 
-The raw OBJ mesh of the British Museum ground floor is imported and reconstructed as a clean planar face, with collinear edges removed. The result is a single topological face representing the navigable floor area — including internal courtyards and voids — rendered against a black background to emphasise the building boundary.
+The starting point is the raw OBJ mesh of the British Museum ground floor, which is cleaned and reconstructed into a single topological face. The result captures the full navigable area of the ground level — including internal voids and courtyards — as a continuous planar shape with collinear edges removed.
 
 ---
 
-### 2. Grid Overlay
+## Grid Overlay
 
 ![Grid Overlay](2D%20files/02_grid_overlay.png)
 
-A regular 3×3 unit grid is clipped to the gallery boundary. The grid serves as the spatial subdivision basis for the analysis: each cell will become a discrete node in the graph. Grid density balances computational cost against spatial resolution — finer grids capture more detail but significantly increase isovist computation time.
+A regular 3×3 unit grid is clipped to the gallery boundary and overlaid on the floor plan. This grid becomes the basis for spatial subdivision: every cell will represent a discrete location in the graph. The resolution balances detail against computation time — the isovist analysis later in the notebook took approximately 40 minutes at this density.
 
 ---
 
-### 3. Sliced Shell
+## Sliced Shell
 
 ![Sliced Shell](2D%20files/03_sliced_shell.png)
 
-The floor plan face is sliced by the grid to produce a **topological shell** of individual rectangular cells. Each cell is assigned a unique `face_id`. This shell is the spatial substrate from which both the navigation and analysis graphs are derived.
+The floor plan is sliced by the grid to produce a shell of individual cells, each assigned a unique identifier. This is the spatial substrate from which all graph-based reasoning follows. What was a continuous floor becomes a network of discrete, connected places.
 
 ---
 
-### 4. Analysis Graph
+## Analysis Graph
 
 ![Analysis Graph](2D%20files/04_analysis_graph.png)
 
-The analysis graph is derived from the shell: each cell becomes a vertex (red dot) and edges connect adjacent cells. This graph abstracts the continuous floor plan into a network structure, enabling all subsequent graph-theoretic metrics. The graph captures how spaces are topologically connected, independent of their physical geometry.
+The analysis graph is derived from the shell: each cell becomes a vertex (shown in red) and edges connect adjacent cells. This graph is the core analytical object — it abstracts the physical floor plan into a network structure that supports all the centrality and pathfinding analyses that follow.
 
 ---
 
-## Shortest Path Analysis
+## Shortest Path Studies
 
-All four paths compare the **original shortest path** (red) against a **straightened/optimised path** (blue) that avoids unnecessary turns while remaining within the gallery boundary. The straightened path is shorter in length and more legible as a wayfinding route.
-
-The case studies target rooms in the **far corners and periphery** of the building — destinations that real visitors often struggle to find. The path lengths reveal how spatially deep these rooms are.
+All four path studies compare the raw shortest path through the grid (shown in red) with a straightened version (shown in blue) that eliminates unnecessary turns while staying within the gallery boundary. The straightened path is always shorter and closer to how a person would actually walk. The four destinations were chosen deliberately — they sit in the corners and periphery of the building, representing rooms that are spatially the most difficult to reach from the main entrance.
 
 ---
 
-### 5. Montague Place Entrance → Museum Cafe
+### Montague Place Entrance to Museum Cafe
 
 ![Shortest Path: Montague Place to Museum Cafe](2D%20files/05_shortest_path_montague_cafe.png)
 
-| | Length |
-|---|---|
-| Original path | 298.61 units |
-| Straightened path | 261.58 units |
-
-Starting from the **Montague Place entrance** (upper right), this route crosses the full depth of the museum to reach the **cafe in the lower left corner**. It is the longest path analysed, reflecting the extreme diagonal distance between these two points. The 12% reduction from straightening shows significant redundancy in the grid-based shortest path.
+Starting from the Montague Place entrance on the upper right and ending at the cafe in the lower left corner, this is the longest route in the study — 298 units along the raw path, reduced to 262 after straightening. The route crosses the full diagonal of the building, which already hints at how much spatial depth separates the two entrances from each other. The 12% reduction from straightening reflects how much the grid introduces unnecessary detours on a diagonal journey.
 
 ---
 
-### 6. Main Entrance → Mausoleum of Halikarnassos Room
+### Main Entrance to Mausoleum of Halikarnassos Room
 
 ![Shortest Path: Main Entrance to Mausoleum](2D%20files/06_shortest_path_main_mausoleum.png)
 
-| | Length |
-|---|---|
-| Original path | 180.43 units |
-| Straightened path | 156.63 units |
-
-From the **Great Russell Street main entrance** (bottom) to **Room 21** in the upper-left zone — home to the Mausoleum of Halikarnassos sculptures. This room sits in a topologically peripheral position: it requires navigation through multiple intermediate spaces and is unlikely to be encountered by visitors who do not seek it out deliberately.
+From the Great Russell Street main entrance at the bottom to Room 21 in the upper-left zone — the Mausoleum of Halikarnassos. This room requires navigation through multiple intermediate spaces and sits in a part of the building that visitors rarely pass through by accident. The path is 180 units raw and 157 straightened. Despite being a major collection, the room's position means it is largely dependent on visitors seeking it out with intent.
 
 ---
 
-### 7. Main Entrance → Parthenon Sculptures
+### Main Entrance to Parthenon Sculptures
 
 ![Shortest Path: Main Entrance to Parthenon Sculptures](2D%20files/07_shortest_path_main_parthenon.png)
 
-| | Length |
-|---|---|
-| Original path | 201.79 units |
-| Straightened path | 174.46 units |
-
-Route to the **Parthenon Sculptures** (upper-left gallery area). Despite being one of the museum's most prominent collections, the spatial path is longer than the Mausoleum route, suggesting the Parthenon room sits slightly deeper in the upper-left zone. The 14% straightening gain is the largest among the four routes, indicating the grid-based path takes a particularly indirect approach.
+The Parthenon Sculptures are among the most prominent collections in the museum, yet the spatial path to reach them from the main entrance is the longest of the upper-left destinations — 202 units raw, 174 straightened. The 14% gain from straightening is the highest in the study, meaning the grid-based route is particularly indirect here. The room sits slightly deeper in the upper-left zone than the Mausoleum, which explains the added distance despite their proximity on the plan.
 
 ---
 
-### 8. Main Entrance → Mexico Exhibition
+### Main Entrance to Mexico Exhibition
 
 ![Shortest Path: Main Entrance to Mexico Exhibition](2D%20files/08_shortest_path_main_mexico.png)
 
-| | Length |
-|---|---|
-| Original path | 160.42 units |
-| Straightened path | 138.32 units |
-
-The **Mexico Exhibition** is the most accessible of the four corner destinations, with the shortest path from the main entrance (160 units vs. 298 for the café). Its position in the upper-left zone — closer to the central axis — makes it more reachable than the Mausoleum or Parthenon rooms despite sharing the same general quadrant.
+The Mexico Exhibition is the most accessible of the four corner destinations, with a straightened path of just 138 units from the main entrance. Although it shares the general upper-left zone with the Mausoleum and Parthenon rooms, its position closer to the central axis of the building makes it significantly easier to reach. It is an example of how small differences in location within the same quadrant can translate into meaningful differences in accessibility.
 
 ---
 
-## Centrality & Spatial Structure Analysis
-
----
-
-### 9. Closeness Centrality (Integration)
+## Closeness Centrality — Integration
 
 ![Closeness Centrality](2D%20files/09_closeness_centrality.png)
 
-**Hot (bright) = high integration / easy to reach from everywhere**
-**Cool (dark) = peripheral / spatially deep**
+Closeness centrality measures how close each space is to all other spaces — the fewer steps it takes to reach a cell from anywhere in the building, the higher its score. On the thermal colour scale, warm tones (yellow, orange) indicate high integration and cool tones (purple, dark blue) indicate peripheral, spatially deep locations.
 
-Closeness centrality measures how close each space is to all other spaces — i.e. how few steps it takes to reach it from anywhere in the building. High-integration spaces (warm colours on the thermal scale) are the natural hubs of visitor flow. In a museum context, these are the rooms visitors pass through most often, regardless of intent.
-
-The central corridor and transitional gallery zones typically score highest. The far corners — including the rooms targeted in the shortest path analysis — show low integration, confirming that these destinations are genuinely hard to reach and unlikely to receive incidental visitors.
+The central corridors and transitional galleries of the museum score highest, confirming their role as the natural hubs of visitor movement. The far corners — including the rooms from the path analysis — score low, which means visitors who happen to be walking through the museum are unlikely to drift toward them naturally. Reaching these rooms requires actively navigating away from the integrated core.
 
 ---
 
-### 10. Betweenness Centrality (Choice)
+## Betweenness Centrality — Choice
 
 ![Betweenness Centrality](2D%20files/10_betweenness_centrality.png)
 
-**High betweenness = many shortest paths pass through this space**
-**Low betweenness = bypassed by most routes**
+Where closeness centrality describes how easy a place is to reach, betweenness centrality identifies the spaces that most routes pass through — the corridors and junction points that visitors inevitably encounter on the way from anywhere to anywhere else. High-betweenness spaces are the chokepoints of the museum; low-betweenness spaces are bypassed by most routes.
 
-Betweenness centrality identifies the **chokepoints and corridors** of the museum: spaces that appear on the highest number of shortest routes between any two cells. These are the spaces visitors inevitably pass through, regardless of their destination.
-
-Rooms with low betweenness but reasonable closeness are "pleasant side destinations" — accessible but not obligatory. Rooms with both low closeness and low betweenness (deep corners) are the most hidden spaces in the museum, capturing the rooms from the shortest path analysis.
+Spaces with low betweenness and low closeness are the most hidden in the building. They are neither natural waypoints nor easy destinations. The peripheral rooms from the path studies fall into this category, meaning they receive neither incidental traffic nor deliberate visits unless a visitor makes a specific effort to find them.
 
 ---
 
-### 11. Community Detection
+## Community Detection
 
 ![Community Detection](2D%20files/11_community_detection.png)
 
-The museum is partitioned into **spatial communities** — groups of cells that are more strongly connected to each other than to the rest of the network. Each colour represents a distinct community. This reveals the natural spatial zones of the building: which rooms form coherent clusters and how many natural "districts" the museum contains.
+Community detection partitions the graph into clusters of cells that are more tightly connected to each other than to the rest of the network. Each colour represents a distinct spatial community. The result reveals the natural zones of the museum — which rooms form coherent districts and how many of these districts the building contains.
 
-Communities roughly correspond to the architectural wings and gallery sequences of the British Museum, validating the graph model against the real building logic.
+The communities correspond roughly to the architectural wings and gallery sequences of the British Museum, validating the graph model against the building's actual spatial logic. Rooms that feel intuitively connected when you walk through the museum tend to belong to the same community in the graph.
 
 ---
 
-### 12. Degree Centrality
+## Degree Centrality
 
 ![Degree Centrality](2D%20files/12_degree_centrality.png)
 
-Computed on the **community-level graph** (each community condensed to a single node), degree centrality measures how many other communities each zone connects to. High-degree communities are spatial **connectors** — transitional zones linking multiple wings. Low-degree communities are **cul-de-sac wings**, accessible from fewer directions and typically housing the more peripheral collections.
+Degree centrality is computed at the community level — each detected community is condensed to a single node and its connections to other communities are counted. Communities with high degree are spatial connectors, linking multiple wings and allowing movement in many directions. Communities with low degree are cul-de-sac zones, accessible from fewer sides and typically housing the more peripheral collections.
 
-The rooms from the shortest path case studies fall within low-degree communities, consistent with their deep spatial position.
+The rooms from the shortest path studies belong to low-degree communities. Combined with their low closeness and betweenness scores, this paints a consistent picture: the far corners of the museum are not just physically distant from the entrance but structurally isolated in the spatial network.
 
 ---
 
-### 13. Visibility / Isovist Analysis
+## Visibility — Isovist Analysis
 
 ![Visibility Analysis](2D%20files/13_visibility_isovist.png)
 
-> Note: Isovist computation took ~40 minutes. Some grid cells near complex boundaries returned null isovists and appear empty in the output.
+An isovist is the polygon of space visible from a given point. For each grid vertex, the isovist is computed and scored by how many other graph vertices fall within it. These scores are interpolated back to the analysis cells and mapped with the thermal colour scale — warm tones for high visibility, cool tones for visual isolation. Some cells near complex boundary conditions returned null isovists and appear empty in the output.
 
-**Hot = high visibility / can see many other cells from here**
-**Cool = low visibility / visually isolated**
-
-An **isovist** is the polygon of space visible from a given point. For each grid vertex, the isovist is computed and the number of other graph vertices it contains is counted as the visibility score. This is interpolated back to the analysis graph cells.
-
-High-visibility spaces are open, central areas — the Great Court, wide corridors, and transitional galleries. Low-visibility spaces are tucked behind walls, in alcoves, or at the ends of gallery sequences. The far-corner rooms from the path analysis also tend to have restricted visibility, compounding their accessibility disadvantage: not only are they far from the entrance, they are also visually hidden from the main circulation areas.
+The most visible spaces are the open, wide areas of the museum — the Great Court, broad corridors, and transitional galleries. The least visible are in alcoves, behind walls, and at the ends of gallery sequences. The peripheral rooms from the path analysis also tend to score low on visibility, adding a further layer to their accessibility disadvantage: they are not only far from the entrance and bypassed by most routes, but also visually cut off from the main circulation areas. A visitor who has never been to the museum would have no way of knowing they are there.
 
 ---
 
 ## Summary
 
-| Metric | Most Accessible Spaces | Least Accessible Spaces |
-|---|---|---|
-| Closeness (Integration) | Central corridors, main hall | Far corners (Mausoleum, Parthenon rooms) |
-| Betweenness (Choice) | Main circulation spine | Side galleries, peripheral wings |
-| Community | Connector zones | Isolated wings |
-| Visibility | Open courts, wide halls | Alcoves, corner galleries |
-| Shortest path (from main entrance) | Mexico Exhibition (138 units) | Museum Cafe via Montague Pl (262 units) |
+The analysis consistently identifies a spatial hierarchy in the British Museum's ground floor. The central and transitional spaces — those close to the main entrance, lying on major circulation routes, and opening onto wide areas — score highly across every metric: they are integrated, they see heavy through-traffic, they connect multiple zones, and they are visually open. The peripheral rooms in the far corners score low across all the same metrics. They are spatially deep, bypassed by most routes, structurally isolated in the community graph, and visually hidden.
 
-The analysis confirms a consistent spatial hierarchy: the **central and transitional spaces** of the British Museum score high across all accessibility metrics, while the **peripheral corner rooms** — despite housing major collections — are spatially deep, visually hidden, and unlikely to be discovered without deliberate navigation.
+This matters for collections housed in those peripheral spaces. The Mausoleum of Halikarnassos, the Parthenon Sculptures, and similar rooms in the upper-left wing are major collections, but their location works against visitor discovery. The Mexico Exhibition, sitting slightly closer to the central axis, fares better — an example of how small positional differences within the same building quadrant produce measurable differences in spatial accessibility.
+
+The straightened path lengths from the main entrance give a tangible summary of spatial depth: Mexico Exhibition at 138 units, Mausoleum at 157, Parthenon at 174, and the Museum Cafe via Montague Place at 262. These numbers reflect the lived experience of navigating the museum — the sense that some rooms feel just out of reach no matter which way you turn.
