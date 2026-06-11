@@ -87,6 +87,14 @@ The Mexico Exhibition is the most accessible of the four corner destinations, wi
 
 ---
 
+### Shortest Path Overview
+
+![Shortest Path Overview](2D%20files/08_shortest_path.png)
+
+A general view of the shortest path routing on the floor plan, showing the navigation graph in use before destination-specific routes are applied.
+
+---
+
 ## Closeness Centrality — Integration
 
 ![Closeness Centrality](2D%20files/09_closeness_centrality.png)
@@ -99,7 +107,7 @@ The central corridors and transitional galleries of the museum score highest, co
 
 ## Betweenness Centrality — Choice
 
-![Betweenness Centrality](2D%20files/10_betweenness_centrality.png)
+![Betweenness Centrality](2D%20files/10_betwenness_centrality.png)
 
 Where closeness centrality describes how easy a place is to reach, betweenness centrality identifies the spaces that most routes pass through — the corridors and junction points that visitors inevitably encounter on the way from anywhere to anywhere else. High-betweenness spaces are the chokepoints of the museum; low-betweenness spaces are bypassed by most routes.
 
@@ -109,11 +117,19 @@ Spaces with low betweenness and low closeness are the most hidden in the buildin
 
 ## Community Detection
 
-![Community Detection](2D%20files/11_community_detection.png)
+![Community Partition](2D%20files/11_community_partition.png)
 
 Community detection partitions the graph into clusters of cells that are more tightly connected to each other than to the rest of the network. Each colour represents a distinct spatial community. The result reveals the natural zones of the museum — which rooms form coherent districts and how many of these districts the building contains.
 
 The communities correspond roughly to the architectural wings and gallery sequences of the British Museum, validating the graph model against the building's actual spatial logic. Rooms that feel intuitively connected when you walk through the museum tend to belong to the same community in the graph.
+
+![Community Zones](2D%20files/11_community_zones.png)
+
+The individual community zones are extracted as separate face groups, each defined by the outer boundary of its cell cluster. This step converts the cell-level partition into distinct spatial regions with clean perimeters — the building broken into its natural districts.
+
+![Community Graph](2D%20files/11_community_graph.png)
+
+A new graph is derived from the community zones: each zone becomes a single node, and edges connect neighbouring zones. This reduced graph makes the inter-district connectivity legible and is the basis for the degree centrality analysis that follows.
 
 ---
 
@@ -129,9 +145,13 @@ The rooms from the shortest path studies belong to low-degree communities. Combi
 
 ## Visibility — Isovist Analysis
 
-![Visibility Analysis](2D%20files/13_visibility_isovist.png)
+![Isovists](2D%20files/13_isovists.png)
 
-An isovist is the polygon of space visible from a given point. For each grid vertex, the isovist is computed and scored by how many other graph vertices fall within it. These scores are interpolated back to the analysis cells and mapped with the thermal colour scale — warm tones for high visibility, cool tones for visual isolation. Some cells near complex boundary conditions returned null isovists and appear empty in the output.
+An isovist is the polygon of space visible from a given point. For every vertex in the grid, the isovist is computed — the result is a dense overlay of visibility polygons across the entire floor plan. Some cells near complex boundary conditions returned null isovists and appear empty in the output; these are points where the geometry was too intricate to resolve a valid visible polygon.
+
+![Visibility Heatmap](2D%20files/14_visibility_heatmap.png)
+
+Each isovist is scored by how many other graph vertices fall within it. These scores are interpolated back to the analysis cells and mapped with the thermal colour scale — warm tones (yellow, orange) for high visibility, cool tones (purple, dark blue) for visual isolation.
 
 The most visible spaces are the open, wide areas of the museum — the Great Court, broad corridors, and transitional galleries. The least visible are in alcoves, behind walls, and at the ends of gallery sequences. The peripheral rooms from the path analysis also tend to score low on visibility, adding a further layer to their accessibility disadvantage: they are not only far from the entrance and bypassed by most routes, but also visually cut off from the main circulation areas. A visitor who has never been to the museum would have no way of knowing they are there.
 
