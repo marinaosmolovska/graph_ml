@@ -12,8 +12,8 @@ A building modelled in Rhino is converted into a graph data structure and classi
 
 Four OBJ files exported from Rhino are loaded via `Topology.ByOBJPath`: ground slab, columns, office volumes, core, and plinth. Each file corresponds to one building component layer.
 
-![Imported geometry](assets/plots/show%20geometry.png)
-![Imported geometry — corrected orientation](assets/plots/show%20geometry2.png)
+<img src="assets/plots/show%20geometry.png" width="700"/>
+<img src="assets/plots/show%20geometry2.png" width="700"/>
 
 ---
 
@@ -35,7 +35,7 @@ Each mesh is converted into closed volumetric cells through `Topology.SelfMerge`
 
 All cells are merged into a single `CellComplex` via `Topology.SelfMerge(Cluster.ByTopologies(all_cells))`. Shared faces between adjacent volumes are recognised, forming a unified topological model.
 
-![CellComplex](assets/plots/cell%20complex.png)
+<img src="assets/plots/cell%20complex.png" width="700"/>
 
 ---
 
@@ -43,7 +43,7 @@ All cells are merged into a single `CellComplex` via `Topology.SelfMerge(Cluster
 
 `Topology.TransferDictionariesBySelectors` maps the cell-type metadata from the selector points (Step 2) onto the merged CellComplex cells. Each cell in the model now carries its type and colour.
 
-![Dictionary transfer](assets/plots/transfer%20dict2.png)
+<img src="assets/plots/transfer%20dict2.png" width="700"/>
 
 ---
 
@@ -51,10 +51,10 @@ All cells are merged into a single `CellComplex` via `Topology.SelfMerge(Cluster
 
 `Graph.ByTopology(model)` derives the adjacency graph: each cell becomes a node, each shared face becomes an edge. One-hot vectors of length 5 — `feature_00` through `feature_04` — are computed per node from the cell type and stored as vertex attributes.
 
-![Adjacency graph](assets/plots/adjacency_graph.png)
-![Adjacency graph — top view](assets/plots/adjacency_graph2.png)
-![Adjacency graph — front view](assets/plots/adjacency_graph3.png)
-![Adjacency graph — side view](assets/plots/adjacency_graph4.png)
+<img src="assets/plots/adjacency_graph.png" width="700"/>
+<img src="assets/plots/adjacency_graph2.png" width="700"/>
+<img src="assets/plots/adjacency_graph3.png" width="700"/>
+<img src="assets/plots/adjacency_graph4.png" width="700"/>
 
 ---
 
@@ -86,4 +86,4 @@ The exported dataset is loaded into `PyG.ByCSVPath` and passed to a pre-trained 
 
 The building was assessed as **Adherence with Plinth (3)**: office and core volumes sit at ground level, with a plinth element running between them. The model returned **Separation with Plinth (1)**. The divergence reflects a structural ambiguity at the graph level — when the plinth node mediates most adjacency between the building mass and the ground slab, the connectivity pattern overlaps with separation-type configurations present in the training data.
 
-![Prediction result](assets/plots/prediction.png)
+<img src="assets/plots/prediction.png" width="700"/>
