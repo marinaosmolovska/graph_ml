@@ -1,6 +1,8 @@
-# Assignment 3 — Building Graph Representation
+# Graph Machine Learning: Predicting the Building-Ground Relationship
 
 A building modelled in Rhino is converted into a graph data structure and classified by a pre-trained Graph Neural Network. The building is decomposed into typed volumetric cells — ground slab, columns, offices, core, and plinth — which become nodes in a graph where edges encode spatial adjacency between volumes.
+
+> **Note:** The model is based on the Bauhaus Dessau building. For the purpose of this analysis, all programme spaces have been assigned the generic cell type *office*, rather than the full range of functions present in the actual building (workshop wing, studio apartments, bridge, stage, etc.). This simplification keeps the graph compatible with the five-class encoding expected by the pre-trained model.
 
 ---
 
@@ -82,6 +84,6 @@ The exported dataset is loaded into `PyG.ByCSVPath` and passed to a pre-trained 
 | 3     | Adherence with Plinth   |
 | 4     | Interlock               |
 
-The building was assessed as **Adherence with Plinth (3)**: office and core volumes sit at ground level, with a plinth element running between them. The model returned **Separation with Plinth (1)**. The divergence is consistent across similar student submissions and reflects a structural ambiguity at the graph level — when the plinth node mediates most adjacency between the building mass and the ground slab, the connectivity pattern overlaps with separation-type configurations present in the training data.
+The building was assessed as **Adherence with Plinth (3)**: office and core volumes sit at ground level, with a plinth element running between them. The model returned **Separation with Plinth (1)**. The divergence reflects a structural ambiguity at the graph level — when the plinth node mediates most adjacency between the building mass and the ground slab, the connectivity pattern overlaps with separation-type configurations present in the training data.
 
 ![Prediction result](assets/plots/prediction.png)
