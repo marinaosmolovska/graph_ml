@@ -1,0 +1,18 @@
+graphs:
+  edge_feature_names:
+  - feat_connectivity_0
+  - feat_connectivity_1
+  - feat_connectivity_2
+  has_edge_features: true
+  has_node_features: true
+  has_node_labels: true
+  node_feature_names:
+  - feat_zoning_type_0
+  - feat_zoning_type_1
+  - feat_zoning_type_2
+  - feat_zoning_type_3
+  - feat_connectivity_0
+  - feat_connectivity_1
+  - feat_connectivity_2
+  num_edge_labels: 3
+  num_node_labels: 9
